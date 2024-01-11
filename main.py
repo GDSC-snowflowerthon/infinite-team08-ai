@@ -11,8 +11,11 @@ class ImageRequest(BaseModel):
 class ImagePromptRequest(BaseModel):
     prompt: str
 
+class TranslationRequest(BaseModel):
+    text: str
+
 client = OpenAI(
-    api_key="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"
+    api_key="sk-"
 )
 
 @app.post("/process_image/")
@@ -44,6 +47,20 @@ async def generate_image(request: ImagePromptRequest):
 
     image_url = response.data[0].url
     return {"image_url": image_url}
+
+@app.post("/translate_to_korean/")
+async def translate_to_korean(request: TranslationRequest):
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a translation assistant. Translate from English to Korean."},
+            {"role": "user", "content": request.text}
+        ]
+    )
+
+    translated_text = response.choices[0].message.content
+
+    return {"translated_text": translated_text}
 
 
 if __name__ == "__main__":
